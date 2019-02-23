@@ -14,7 +14,7 @@ public class BanListImpl implements BanList {
     }
 
     @Override
-    public BanEntry getBanEntry(String s)
+    public BanEntry getBanEntry(String playerName)
     {
         return null;
     }

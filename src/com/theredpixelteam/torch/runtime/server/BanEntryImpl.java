@@ -130,9 +130,11 @@ public class BanEntryImpl implements BanEntry {
      * of the BanService.</b>
      *
      * @see BanEntry#save()
+     * @throws SpongeExecutionException when exceptions are thrown from sponge api
      */
     @Override
     public void save()
+        throws SpongeExecutionException
     {
         // Initialize Ban instance builder with type PROFILE
         Ban.Builder builder = Ban.builder().type(BanTypes.PROFILE);

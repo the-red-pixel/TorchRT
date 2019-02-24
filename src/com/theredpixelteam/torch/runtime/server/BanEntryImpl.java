@@ -2,6 +2,7 @@ package com.theredpixelteam.torch.runtime.server;
 
 import com.theredpixelteam.torch.GameProfileUtil;
 import com.theredpixelteam.torch.SpongeExecutionException;
+import com.theredpixelteam.torch.exception.ShouldNotReachHere;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.spongepowered.api.Sponge;
@@ -85,7 +86,7 @@ public class BanEntryImpl implements BanEntry {
             });
         }
         else
-            throw new IllegalArgumentException("Unknown sponge ban type");
+            throw new ShouldNotReachHere();
 
         this.created = new Date(spongeBanInstance.getCreationDate().toEpochMilli());
     }
@@ -93,7 +94,7 @@ public class BanEntryImpl implements BanEntry {
     /**
      * Get target of this ban entry.
      *
-     * @return Target player name
+     * @return Target string
      */
     @Override
     public @Nonnull String getTarget()
@@ -237,7 +238,7 @@ public class BanEntryImpl implements BanEntry {
                 break;
 
             default:
-                throw new UnsupportedOperationException("Unknown ban type");
+                throw new ShouldNotReachHere();
         }
 
         if (source != null)

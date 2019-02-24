@@ -1,28 +1,97 @@
 package com.theredpixelteam.torch.runtime.server;
 
+import com.theredpixelteam.torch.GameProfileUtil;
 import com.theredpixelteam.torch.SpongeExecutionException;
 import org.bukkit.BanEntry;
+import org.bukkit.BanList;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.service.ban.BanService;
+import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.ban.Ban;
 import org.spongepowered.api.util.ban.BanTypes;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
 
 public class BanEntryImpl implements BanEntry {
-    BanEntryImpl(@Nonnull BanService service, @Nonnull String target)
+    BanEntryImpl(
+            @Nonnull BanService service,
+            @Nonnull BanList.Type type,
+            @Nonnull String target)
     {
-        this.target = target;
-        this.service = service;
+        this.service = Objects.requireNonNull(service, "service");
+        this.type = Objects.requireNonNull(type, "type");
+        this.target = Objects.requireNonNull(target, "target");
+    }
+
+    BanEntryImpl(@Nonnull BanService service,
+                 @Nonnull BanList.Type type,
+                 @Nonnull String target,
+                 @Nullable Date created,
+                 @Nullable String source,
+                 @Nullable String reason,
+                 @Nullable Date expiration)
+    {
+        this(service, type, target);
+
+        this.created = created;
+        this.source = source;
+        this.reason = reason;
+        this.expiration = expiration;
+    }
+
+    BanEntryImpl(@Nonnull BanService service,
+                 @Nonnull Ban spongeBanInstance)
+    {
+        this.service = Objects.requireNonNull(service, "service");
+
+        if (BanTypes.IP.equals(spongeBanInstance.getType()))
+        {
+            this.type = BanList.Type.IP;
+            this.target = ((Ban.Ip) spongeBanInstance).getAddress().toString();
+        }
+        else if (BanTypes.PROFILE.equals(spongeBanInstance.getType()))
+        {
+            this.type = BanList.Type.NAME;
+
+            // It seems that CraftBukkit's BanList doesn't support UUID ban.
+            // This will be a great conflict or issue under current UUID-based user management.
+            this.target = ((Ban.Profile) spongeBanInstance).getProfile().getName().orElseGet(() -> {
+                String playerName = null;
+
+                // Trying to access User Storage Service and fetch player name
+                Optional<UserStorageService> userStorage = Sponge.getServiceManager().provide(UserStorageService.class);
+
+                if (userStorage.isPresent())
+                {
+                    Optional<User> user = userStorage.get().get(((Ban.Profile) spongeBanInstance).getProfile().getUniqueId());
+
+                    if (user.isPresent())
+                        playerName = user.get().getName();
+                }
+
+                if (playerName == null)
+                    throw new IllegalArgumentException("Historically reserved issue");
+
+                return playerName;
+            });
+        }
+        else
+            throw new IllegalArgumentException("Unknown sponge ban type");
+
+        this.created = new Date(spongeBanInstance.getCreationDate().toEpochMilli());
     }
 
     /**
-     * Get target player of this ban entry.
+     * Get target of this ban entry.
      *
      * @return Target player name
      */
@@ -136,23 +205,40 @@ public class BanEntryImpl implements BanEntry {
     public void save()
         throws SpongeExecutionException
     {
-        // Initialize Ban instance builder with type PROFILE
-        Ban.Builder builder = Ban.builder().type(BanTypes.PROFILE);
+        Ban.Builder builder = Ban.builder();
 
         // Ban Target is the required argument, must be non-null
         Objects.requireNonNull(target, "Ban target not defined");
 
-        GameProfile profile;
+        switch (type)
+        {
+            case IP:
+                builder.type(BanTypes.IP);
 
-        try {
-            // Getting GameProfile instance from sponge server, exception may occur
-            // when calling CompletableFuture.get()
-            profile = Sponge.getServer().getGameProfileManager().get(target).get();
-        } catch (Exception e) {
-            throw new SpongeExecutionException("Failed to get game profile \"" + target + "\"", e);
+                try {
+                    builder.address(InetAddress.getByName(target));
+                } catch (UnknownHostException e) {
+                    throw new IllegalArgumentException(e);
+                }
+
+                break;
+
+            case NAME:
+                builder.type(BanTypes.PROFILE);
+
+                Optional<GameProfile> profile =
+                        GameProfileUtil.getProfileByNameInstantly(Sponge.getServer().getGameProfileManager(), target);
+
+                if (!profile.isPresent())
+                    return; // specified user not found, ignore this ban
+
+                builder.profile(profile.get());
+
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Unknown ban type");
         }
-
-        builder.profile(profile);
 
         if (source != null)
             builder.source(Text.of(source));
@@ -181,4 +267,6 @@ public class BanEntryImpl implements BanEntry {
     private String source;
 
     private final BanService service;
+
+    private final BanList.Type type;
 }

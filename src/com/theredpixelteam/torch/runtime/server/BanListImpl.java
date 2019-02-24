@@ -48,7 +48,7 @@ public class BanListImpl implements BanList {
     @Override
     public void pardon(String playerName)
     {
-
+        
     }
 
     private final BanService service;

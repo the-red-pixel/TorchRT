@@ -1,5 +1,6 @@
 package com.theredpixelteam.torch.runtime.server;
 
+import com.theredpixelteam.torch.Torch;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.boss.BarColor;
@@ -25,6 +26,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.util.CachedServerIcon;
 
+import org.spongepowered.api.Platform;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 
@@ -42,19 +44,21 @@ public class ServerImpl implements org.bukkit.Server {
     @Override
     public String getName()
     {
-        return null;
+        return Torch.NAME;
     }
 
     @Override
     public String getVersion()
     {
-        return null;
+        return Torch.VERSION + "@"
+                + Sponge.getGame().getPlatform().getContainer(Platform.Component.IMPLEMENTATION).getVersion().orElse("");
     }
 
     @Override
     public String getBukkitVersion()
     {
-        return null;
+        return Torch.VERSION + "@"
+                + Sponge.getGame().getPlatform().getContainer(Platform.Component.API).getVersion().orElse("");
     }
 
     @Override

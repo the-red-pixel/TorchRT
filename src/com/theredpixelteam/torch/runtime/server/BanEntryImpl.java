@@ -1,5 +1,6 @@
 package com.theredpixelteam.torch.runtime.server;
 
+import com.theredpixelteam.torch.ADM;
 import com.theredpixelteam.torch.GameProfileUtil;
 import com.theredpixelteam.torch.SpongeExecutionException;
 import com.theredpixelteam.torch.exception.ShouldNotReachHere;
@@ -21,12 +22,12 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 public class BanEntryImpl implements BanEntry {
-    BanEntryImpl(
-            @Nonnull BanService service,
-            @Nonnull BanList.Type type,
-            @Nonnull String target)
+    BanEntryImpl(@Nonnull BanService service,
+                 @Nonnull BanList.Type type,
+                 @Nonnull String target)
     {
         this.service = Objects.requireNonNull(service, "service");
         this.type = Objects.requireNonNull(type, "type");
@@ -61,26 +62,34 @@ public class BanEntryImpl implements BanEntry {
         }
         else if (BanTypes.PROFILE.equals(spongeBanInstance.getType()))
         {
+            Ban.Profile profileBan = (Ban.Profile) spongeBanInstance;
+
             this.type = BanList.Type.NAME;
 
             // It seems that CraftBukkit's BanList doesn't support UUID ban.
             // This will be a great conflict or issue under current UUID-based user management.
-            this.target = ((Ban.Profile) spongeBanInstance).getProfile().getName().orElseGet(() -> {
+            this.target = profileBan.getProfile().getName().orElseGet(() -> {
                 String playerName = null;
+                UUID uuid = profileBan.getProfile().getUniqueId();
 
                 // Trying to access User Storage Service and fetch player name
                 Optional<UserStorageService> userStorage = Sponge.getServiceManager().provide(UserStorageService.class);
 
                 if (userStorage.isPresent())
                 {
-                    Optional<User> user = userStorage.get().get(((Ban.Profile) spongeBanInstance).getProfile().getUniqueId());
+                    Optional<User> user = userStorage.get().get(uuid);
 
                     if (user.isPresent())
                         playerName = user.get().getName();
                 }
 
                 if (playerName == null)
+                {
+                    if (ADM.enabled())
+                        ADM.logger().debug("Failed to convert uuid {" + uuid + "} to an actual player");
+
                     throw new IllegalArgumentException("Historically reserved issue");
+                }
 
                 return playerName;
             });
@@ -89,6 +98,22 @@ public class BanEntryImpl implements BanEntry {
             throw new ShouldNotReachHere();
 
         this.created = new Date(spongeBanInstance.getCreationDate().toEpochMilli());
+
+        spongeBanInstance.getBanSource().ifPresent((source) -> this.source = source.toPlain());
+        spongeBanInstance.getReason().ifPresent((reason) -> this.reason = reason.toPlain());
+        spongeBanInstance.getExpirationDate().ifPresent((expiration) -> this.expiration = new Date(expiration.toEpochMilli()));
+    }
+
+    static Optional<BanEntry> constructSilenty(@Nonnull BanService service,
+                                               @Nonnull Ban spongeBanInstance)
+    {
+        try {
+            return Optional.of(new BanEntryImpl(service, spongeBanInstance));
+        } catch (Exception e) {
+            if (ADM.enabled())
+                ADM.logger().debug("Exception occurred constructing ban entry instance. Ignored.", e);
+            return Optional.empty();
+        }
     }
 
     /**
@@ -219,7 +244,9 @@ public class BanEntryImpl implements BanEntry {
                 try {
                     builder.address(InetAddress.getByName(target));
                 } catch (UnknownHostException e) {
-                    throw new IllegalArgumentException(e);
+                    // illegal ip address, ignore this ban
+                    if (ADM.enabled())
+                        ADM.logger().debug("Ignoring ban on ip/host [" + target + "]", e);
                 }
 
                 break;
@@ -231,7 +258,13 @@ public class BanEntryImpl implements BanEntry {
                         GameProfileUtil.getProfileByNameInstantly(Sponge.getServer().getGameProfileManager(), target);
 
                 if (!profile.isPresent())
-                    return; // specified user not found, ignore this ban
+                {
+                    // specified user not found, ignore this ban
+                    if (ADM.enabled())
+                        ADM.logger().debug("Ignoring ban on player [" + target + "], specified user not found.");
+
+                    return;
+                }
 
                 builder.profile(profile.get());
 

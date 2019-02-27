@@ -1,5 +1,6 @@
 package com.theredpixelteam.torch.runtime.server;
 
+import com.theredpixelteam.torch.ADM;
 import com.theredpixelteam.torch.GameProfileUtil;
 import com.theredpixelteam.torch.exception.ShouldNotReachHere;
 import org.bukkit.BanEntry;
@@ -7,18 +8,16 @@ import org.bukkit.BanList;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.service.ban.BanService;
+import org.spongepowered.api.util.ban.Ban;
 
 import javax.annotation.Nonnull;
 import java.net.InetAddress;
-import java.util.Date;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.net.UnknownHostException;
+import java.util.*;
 
 public class BanListImpl implements BanList {
-    public BanListImpl(
-            @Nonnull BanService service,
-            @Nonnull BanList.Type type)
+    public BanListImpl(@Nonnull BanService service,
+                       @Nonnull BanList.Type type)
     {
         this.service = Objects.requireNonNull(service, "service");
         this.type = Objects.requireNonNull(type, "type");
@@ -36,10 +35,35 @@ public class BanListImpl implements BanList {
         return null;
     }
 
+    /**
+     * Get all bans in this ban list.
+     *
+     * @return An immutable collection of ban entries
+     */
     @Override
     public Set<BanEntry> getBanEntries()
     {
-        return null;
+        Set<BanEntry> entries = new HashSet<>();
+        Collection<? extends Ban> spongeBanInstances;
+
+        switch (type)
+        {
+            case NAME:
+                spongeBanInstances = service.getProfileBans();
+                break;
+
+            case IP:
+                spongeBanInstances = service.getIpBans();
+                break;
+
+            default:
+                throw new ShouldNotReachHere();
+        }
+
+        for (Ban spongeBanInstance : spongeBanInstances)
+            BanEntryImpl.constructSilenty(service, spongeBanInstance).ifPresent(entries::add);
+
+        return Collections.unmodifiableSet(entries);
     }
 
     /**
@@ -49,8 +73,10 @@ public class BanListImpl implements BanList {
      * @return Query result
      */
     @Override
-    public boolean isBanned(String target)
+    public boolean isBanned(@Nonnull String target)
     {
+        Objects.requireNonNull(target);
+
         switch (type)
         {
             case NAME:
@@ -65,8 +91,12 @@ public class BanListImpl implements BanList {
             case IP:
                 try {
                     return service.isBanned(InetAddress.getByName(target));
-                } catch (Exception e) {
-                    throw new IllegalArgumentException(e);
+                } catch (UnknownHostException e) {
+                    // illegal ip address, ignore this query
+                    if (ADM.enabled())
+                        ADM.logger().debug("Unknown or illegal ip/host: " + target, e);
+
+                    return false;
                 }
 
             default:
@@ -83,8 +113,10 @@ public class BanListImpl implements BanList {
      * @param target Target
      */
     @Override
-    public void pardon(String target)
+    public void pardon(@Nonnull String target)
     {
+        Objects.requireNonNull(target, "target");
+
         switch (type)
         {
             case NAME:
@@ -97,7 +129,9 @@ public class BanListImpl implements BanList {
                 try {
                     service.pardon(InetAddress.getByName(target));
                 } catch (Exception e) {
-                    throw new IllegalArgumentException(e);
+                    // illegal ip address, ignore this ban
+                    if (ADM.enabled())
+                        ADM.logger().debug("Unknown or illegal ip/host: " + target, e);
                 }
 
                 break;

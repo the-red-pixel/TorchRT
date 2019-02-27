@@ -12,12 +12,16 @@ import org.spongepowered.api.plugin.Plugin;
         description = "Torch Runtime Support for Spigot plugins",
         authors = {"KuCrO3 Studio", "TheRedPixel"})
 public class Torch {
-
     @Listener
     public void onConstruction(GameConstructionEvent event)
     {
         logger.info("Starting server with Torch Runtime Subsystem");
     }
+
+
+    public static final String VERSION = "1.0b";
+
+    public static final String NAME = "TorchRuntime";
 
     @Inject
     private Logger logger;

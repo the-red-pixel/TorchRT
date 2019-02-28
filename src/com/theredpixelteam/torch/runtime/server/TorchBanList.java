@@ -9,15 +9,17 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.service.ban.BanService;
 import org.spongepowered.api.util.ban.Ban;
+import org.spongepowered.api.util.ban.BanType;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.*;
 
-public class BanListImpl implements BanList {
-    public BanListImpl(@Nonnull BanService service,
-                       @Nonnull BanList.Type type)
+public class TorchBanList implements BanList {
+    public TorchBanList(@Nonnull BanService service,
+                        @Nonnull BanList.Type type)
     {
         this.service = Objects.requireNonNull(service, "service");
         this.type = Objects.requireNonNull(type, "type");
@@ -29,19 +31,39 @@ public class BanListImpl implements BanList {
         return null;
     }
 
+    /**
+     * Adds a ban to this ban list. If a ban already exists, this will update the previous ban.
+     *
+     * <b>Whether this method has an immediate effect depends on the actual implementation
+     * of the BanService.</b>
+     *
+     * @see BanList#addBan(String, String, Date, String)
+     * @param target Target
+     * @param reason Reason, default if null
+     * @param expiration Expiration, forever if null
+     * @param source Source, default if null
+     * @return Created {@link BanEntry} instance
+     */
     @Override
-    public BanEntry addBan(String s, String s1, Date date, String s2)
+    public @Nonnull BanEntry addBan(@Nonnull String target,
+                                    @Nullable String reason,
+                                    @Nullable Date expiration,
+                                    @Nullable String source)
     {
+        Objects.requireNonNull(target, "target");
+
+        // TODO
         return null;
     }
 
     /**
      * Get all bans in this ban list.
      *
+     * @see BanList#getBanEntries()
      * @return An immutable collection of ban entries
      */
     @Override
-    public Set<BanEntry> getBanEntries()
+    public @Nonnull Set<BanEntry> getBanEntries()
     {
         Set<BanEntry> entries = new HashSet<>();
         Collection<? extends Ban> spongeBanInstances;
@@ -61,7 +83,7 @@ public class BanListImpl implements BanList {
         }
 
         for (Ban spongeBanInstance : spongeBanInstances)
-            BanEntryImpl.constructSilenty(service, spongeBanInstance).ifPresent(entries::add);
+            TorchBanEntry.constructSilenty(service, spongeBanInstance).ifPresent(entries::add);
 
         return Collections.unmodifiableSet(entries);
     }
@@ -69,6 +91,7 @@ public class BanListImpl implements BanList {
     /**
      * Query whether the target is banned.
      *
+     * @see BanList#isBanned(String)
      * @param target Target
      * @return Query result
      */
@@ -110,6 +133,7 @@ public class BanListImpl implements BanList {
      * <b>Whether this method has an immediate effect depends on the actual implementation
      * of the BanService.</b>
      *
+     * @see BanList#pardon(String)
      * @param target Target
      */
     @Override
@@ -139,6 +163,37 @@ public class BanListImpl implements BanList {
             default:
                 throw new ShouldNotReachHere();
         }
+    }
+
+    /**
+     * Return the current ban service instance.
+     *
+     * @return {@link BanService} instance
+     */
+    public @Nonnull BanService getService()
+    {
+        return service;
+    }
+
+    /**
+     * Return the bukkit ban list type.
+     *
+     * @return {@link BanList.Type} instance
+     */
+    public @Nonnull BanList.Type getBukkitType()
+    {
+        return type;
+    }
+
+    /**
+     * Return the sponge ban type.
+     *
+     * @return {@link BanType} instance
+     */
+    public @Nonnull BanType getSpongeType()
+    {
+        return TorchBanUtil.fromBukkitType(type)
+                .orElseThrow(ShouldNotReachHere::new);
     }
 
     private final BanList.Type type;

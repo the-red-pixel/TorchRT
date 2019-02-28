@@ -35,8 +35,8 @@ import java.io.File;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class ServerImpl implements org.bukkit.Server {
-    public ServerImpl(Server server)
+public class TorchServer implements org.bukkit.Server {
+    public TorchServer(Server server)
     {
         this.server = server;
     }

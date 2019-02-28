@@ -13,6 +13,7 @@ import org.spongepowered.api.service.ban.BanService;
 import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.ban.Ban;
+import org.spongepowered.api.util.ban.BanType;
 import org.spongepowered.api.util.ban.BanTypes;
 
 import javax.annotation.Nonnull;
@@ -24,23 +25,23 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-public class BanEntryImpl implements BanEntry {
-    BanEntryImpl(@Nonnull BanService service,
-                 @Nonnull BanList.Type type,
-                 @Nonnull String target)
+public class TorchBanEntry implements BanEntry {
+    TorchBanEntry(@Nonnull BanService service,
+                  @Nonnull BanList.Type type,
+                  @Nonnull String target)
     {
         this.service = Objects.requireNonNull(service, "service");
         this.type = Objects.requireNonNull(type, "type");
         this.target = Objects.requireNonNull(target, "target");
     }
 
-    BanEntryImpl(@Nonnull BanService service,
-                 @Nonnull BanList.Type type,
-                 @Nonnull String target,
-                 @Nullable Date created,
-                 @Nullable String source,
-                 @Nullable String reason,
-                 @Nullable Date expiration)
+    TorchBanEntry(@Nonnull BanService service,
+                  @Nonnull BanList.Type type,
+                  @Nonnull String target,
+                  @Nullable Date created,
+                  @Nullable String source,
+                  @Nullable String reason,
+                  @Nullable Date expiration)
     {
         this(service, type, target);
 
@@ -50,8 +51,8 @@ public class BanEntryImpl implements BanEntry {
         this.expiration = expiration;
     }
 
-    BanEntryImpl(@Nonnull BanService service,
-                 @Nonnull Ban spongeBanInstance)
+    TorchBanEntry(@Nonnull BanService service,
+                  @Nonnull Ban spongeBanInstance)
     {
         this.service = Objects.requireNonNull(service, "service");
 
@@ -108,7 +109,7 @@ public class BanEntryImpl implements BanEntry {
                                                @Nonnull Ban spongeBanInstance)
     {
         try {
-            return Optional.of(new BanEntryImpl(service, spongeBanInstance));
+            return Optional.of(new TorchBanEntry(service, spongeBanInstance));
         } catch (Exception e) {
             if (ADM.enabled())
                 ADM.logger().debug("Exception occurred constructing ban entry instance. Ignored.", e);
@@ -119,6 +120,7 @@ public class BanEntryImpl implements BanEntry {
     /**
      * Get target of this ban entry.
      *
+     * @see BanEntry#getTarget()
      * @return Target string
      */
     @Override
@@ -130,6 +132,7 @@ public class BanEntryImpl implements BanEntry {
     /**
      * Get creating date of this ban entry.
      *
+     * @see BanEntry#getCreated()
      * @return Creating date
      */
     @Override
@@ -142,6 +145,7 @@ public class BanEntryImpl implements BanEntry {
      * Set creating date of this ban entry.
      * <b>This operation won't have immediate effect on ban service.</b>
      *
+     * @see BanEntry#setCreated(Date)
      * @param date Creating date
      */
     @Override
@@ -153,6 +157,7 @@ public class BanEntryImpl implements BanEntry {
     /**
      * Get source of this ban entry.
      *
+     * @see BanEntry#getSource()
      * @return Source
      */
     @Override
@@ -165,6 +170,7 @@ public class BanEntryImpl implements BanEntry {
      * Set source of this ban entry.
      * <b>This operation won't have immediate effect on ban service.</b>
      *
+     * @see BanEntry#setSource(String)
      * @param source Source
      */
     @Override
@@ -176,6 +182,7 @@ public class BanEntryImpl implements BanEntry {
     /**
      * Get expiration date of this ban entry.
      *
+     * @see BanEntry#getExpiration()
      * @return Expiration date
      */
     @Override
@@ -188,6 +195,7 @@ public class BanEntryImpl implements BanEntry {
      * Set expiration date of this ban entry.
      * <b>This operation won't have immediate effect on ban service.</b>
      *
+     * @see BanEntry#setExpiration(Date)
      * @param date Expiration date
      */
     @Override
@@ -199,6 +207,7 @@ public class BanEntryImpl implements BanEntry {
     /**
      * Get reason of this ban entry.
      *
+     * @see BanEntry#getReason()
      * @return Banning reason
      */
     @Override
@@ -211,6 +220,7 @@ public class BanEntryImpl implements BanEntry {
      * Set reason of this ban entry.
      * <b>This operation won't have immediate effect on ban service.</b>
      *
+     * @see BanEntry#getReason()
      * @param reason Banning reason
      */
     @Override
@@ -288,6 +298,37 @@ public class BanEntryImpl implements BanEntry {
 
         // Commit ban entry to BanService
         service.addBan(builder.build());
+    }
+
+    /**
+     * Return the current ban service instance.
+     *
+     * @return {@link BanService} instance
+     */
+    public @Nonnull BanService getService()
+    {
+        return service;
+    }
+
+    /**
+     * Return the bukkit ban list type.
+     *
+     * @return {@link BanList.Type} instance
+     */
+    public @Nonnull BanList.Type getBukkitType()
+    {
+        return type;
+    }
+
+    /**
+     * Return the sponge ban type.
+     *
+     * @return {@link BanType} instance
+     */
+    public @Nonnull BanType getSpongeType()
+    {
+        return TorchBanUtil.fromBukkitType(type)
+                .orElseThrow(ShouldNotReachHere::new);
     }
 
     private String reason;

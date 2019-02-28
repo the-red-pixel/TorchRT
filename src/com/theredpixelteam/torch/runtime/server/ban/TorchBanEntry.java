@@ -1,4 +1,4 @@
-package com.theredpixelteam.torch.runtime.server;
+package com.theredpixelteam.torch.runtime.server.ban;
 
 import com.theredpixelteam.torch.ADM;
 import com.theredpixelteam.torch.GameProfileUtil;

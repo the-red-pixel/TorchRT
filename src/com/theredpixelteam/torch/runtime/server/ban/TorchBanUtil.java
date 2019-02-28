@@ -1,4 +1,4 @@
-package com.theredpixelteam.torch.runtime.server;
+package com.theredpixelteam.torch.runtime.server.ban;
 
 import org.bukkit.BanList;
 import org.spongepowered.api.util.ban.BanType;

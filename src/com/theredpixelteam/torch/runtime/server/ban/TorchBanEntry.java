@@ -1,8 +1,9 @@
 package com.theredpixelteam.torch.runtime.server.ban;
 
-import com.theredpixelteam.torch.ADM;
+import com.theredpixelteam.torch.adm.ADM;
 import com.theredpixelteam.torch.GameProfileUtil;
 import com.theredpixelteam.torch.SpongeExecutionException;
+import com.theredpixelteam.torch.adm.ADMLogging;
 import com.theredpixelteam.torch.exception.ShouldNotReachHere;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
@@ -51,6 +52,7 @@ public class TorchBanEntry implements BanEntry {
         this.expiration = expiration;
     }
 
+    @ADMLogging
     TorchBanEntry(@Nonnull BanService service,
                   @Nonnull Ban spongeBanInstance)
     {
@@ -105,6 +107,7 @@ public class TorchBanEntry implements BanEntry {
         spongeBanInstance.getExpirationDate().ifPresent((expiration) -> this.expiration = new Date(expiration.toEpochMilli()));
     }
 
+    @ADMLogging
     static Optional<BanEntry> constructSilenty(@Nonnull BanService service,
                                                @Nonnull Ban spongeBanInstance)
     {
@@ -238,6 +241,7 @@ public class TorchBanEntry implements BanEntry {
      * @throws SpongeExecutionException when exceptions are thrown from sponge api
      */
     @Override
+    @ADMLogging
     public void save()
         throws SpongeExecutionException
     {

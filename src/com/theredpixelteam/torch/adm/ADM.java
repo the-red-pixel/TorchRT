@@ -1,4 +1,4 @@
-package com.theredpixelteam.torch;
+package com.theredpixelteam.torch.adm;
 
 import org.slf4j.Logger;
 

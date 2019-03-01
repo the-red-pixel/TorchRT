@@ -1,15 +1,18 @@
 package com.theredpixelteam.torch.runtime.server.ban;
 
-import com.theredpixelteam.torch.ADM;
+import com.theredpixelteam.torch.adm.ADM;
 import com.theredpixelteam.torch.GameProfileUtil;
+import com.theredpixelteam.torch.adm.ADMLogging;
 import com.theredpixelteam.torch.exception.ShouldNotReachHere;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.service.ban.BanService;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.ban.Ban;
 import org.spongepowered.api.util.ban.BanType;
+import org.spongepowered.api.util.ban.BanTypes;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,6 +36,9 @@ public class TorchBanList implements BanList {
 
     /**
      * Adds a ban to this ban list. If a ban already exists, this will update the previous ban.
+     * If an unavailable or illegal target is provided, this method will return a constructed
+     * {@link BanEntry} instance and simply ignore this ban. And you can still call the
+     * {@link BanEntry#save()} to make an attempt to establish this ban.
      *
      * <b>Whether this method has an immediate effect depends on the actual implementation
      * of the BanService.</b>
@@ -45,6 +51,7 @@ public class TorchBanList implements BanList {
      * @return Created {@link BanEntry} instance
      */
     @Override
+    @ADMLogging
     public @Nonnull BanEntry addBan(@Nonnull String target,
                                     @Nullable String reason,
                                     @Nullable Date expiration,
@@ -52,8 +59,62 @@ public class TorchBanList implements BanList {
     {
         Objects.requireNonNull(target, "target");
 
-        // TODO
-        return null;
+        Ban.Builder spongeBanBuilder = Ban.builder();
+        BanType spongeType = getSpongeType();
+
+        BanEntry banEntry;
+        boolean flag = false;
+
+        spongeBanBuilder.type(spongeType);
+
+        if (BanTypes.IP.equals(spongeType))
+        {
+            try {
+                spongeBanBuilder.address(InetAddress.getByName(target));
+
+                flag = true;
+            } catch (UnknownHostException e) {
+                // illegal ip address, ignore this ban
+                if (ADM.enabled())
+                    ADM.logger().debug("Ignoring ban on ip/host [" + target + "]", e);
+            }
+        }
+        else if (BanTypes.PROFILE.equals(spongeType))
+        {
+            Optional<GameProfile> profile =
+                    GameProfileUtil.getProfileByNameInstantly(Sponge.getServer().getGameProfileManager(), target);
+
+            if (!(flag = profile.isPresent())) // specified user not found, ignore this ban
+                if (ADM.enabled())
+                    ADM.logger().debug("Ignoring ban on player [" + target + "]");
+                else;
+            else
+                spongeBanBuilder.profile(profile.get());
+        }
+        else
+            throw new ShouldNotReachHere();
+
+        if (flag)
+        {
+            if (reason != null)
+                spongeBanBuilder.reason(Text.of(reason));
+
+            if (expiration != null)
+                spongeBanBuilder.expirationDate(expiration.toInstant());
+
+            if (source != null)
+                spongeBanBuilder.source(Text.of(source));
+
+            Ban spongeBanInstance = spongeBanBuilder.build();
+            banEntry = TorchBanEntry.constructSilenty(service, spongeBanInstance)
+                    .orElseThrow(ShouldNotReachHere::new);
+
+            service.addBan(spongeBanInstance);
+        }
+        else
+            banEntry = new TorchBanEntry(service, type, target, new Date(), source, reason, expiration);
+
+        return banEntry;
     }
 
     /**
@@ -96,6 +157,7 @@ public class TorchBanList implements BanList {
      * @return Query result
      */
     @Override
+    @ADMLogging
     public boolean isBanned(@Nonnull String target)
     {
         Objects.requireNonNull(target);
@@ -137,6 +199,7 @@ public class TorchBanList implements BanList {
      * @param target Target
      */
     @Override
+    @ADMLogging
     public void pardon(@Nonnull String target)
     {
         Objects.requireNonNull(target, "target");

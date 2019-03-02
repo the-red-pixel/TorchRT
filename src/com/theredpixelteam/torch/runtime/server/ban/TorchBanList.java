@@ -28,9 +28,58 @@ public class TorchBanList implements BanList {
         this.type = Objects.requireNonNull(type, "type");
     }
 
+    /**
+     * Get a {@link BanEntry} by specific target and null will be return
+     * if no {@link BanEntry} found for specific target or the target is
+     * unavailable or illegal.
+     *
+     * @see BanList#getBanEntry(String)
+     * @param target Target
+     * @return {@link BanEntry} instance, null if not found
+     */
     @Override
-    public BanEntry getBanEntry(String target)
+    @ADMLogging
+    public @Nullable BanEntry getBanEntry(@Nonnull String target)
     {
+        Objects.requireNonNull(target, "target");
+        Optional<? extends Ban> spongeBan;
+
+        switch (type)
+        {
+            case NAME:
+                Optional<GameProfile> profile =
+                        GameProfileUtil.getProfileByNameInstantly(Sponge.getServer().getGameProfileManager(), target);
+
+                if (!profile.isPresent())
+                {
+                    if (ADM.enabled())
+                        ADM.logger().debug("Unavailable player ban target [" + target + "], null returned");
+
+                    return null;
+                }
+
+                spongeBan = service.getBanFor(profile.get());
+
+                break;
+
+            case IP:
+                try {
+                    spongeBan = service.getBanFor(InetAddress.getByName(target));
+
+                    break;
+                } catch (UnknownHostException e) {
+                    if (ADM.enabled())
+                        ADM.logger().debug("Illegal or unknown ip/host [" + target +"], null returned.", e);
+                    return null;
+                }
+
+            default:
+                throw new ShouldNotReachHere();
+        }
+
+        if (spongeBan.isPresent())
+            return TorchBanEntry.constructSilenty(service, spongeBan.get()).orElse(null);
+
         return null;
     }
 

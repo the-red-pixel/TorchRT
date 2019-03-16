@@ -1,7 +1,10 @@
-package com.theredpixelteam.torch.cocoabean;
+package com.theredpixelteam.cocoabean;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class CocoaBeanElement {
-    CocoaBeanElement(int id, String identity)
+    public CocoaBeanElement(int id, String identity)
     {
         this.id = id;
         this.identity = identity;
@@ -20,4 +23,6 @@ public class CocoaBeanElement {
     private final int id;
 
     private final String identity;
+
+    private final Map<String, CocoaBeanEntity> entities = new HashMap<>();
 }

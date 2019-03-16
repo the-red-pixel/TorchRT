@@ -1,6 +1,6 @@
-package com.theredpixelteam.torch.cocoabean;
+package com.theredpixelteam.cocoabean;
 
-import com.theredpixelteam.torch.cocoabean.trigger.Trigger;
+import com.theredpixelteam.cocoabean.trigger.Trigger;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
@@ -11,7 +11,7 @@ import java.util.function.Supplier;
  * @see CocoaBeanElement
  */
 public abstract class CocoaBeanEntity {
-    CocoaBeanEntity(@Nonnull CocoaBeanEntityType type, @Nonnull String identity)
+    public CocoaBeanEntity(@Nonnull CocoaBeanEntityType type, @Nonnull String identity)
     {
         this.type = type;
         this.identity = identity;

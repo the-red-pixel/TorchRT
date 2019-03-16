@@ -1,4 +1,4 @@
-package com.theredpixelteam.torch.cocoabean.trigger;
+package com.theredpixelteam.cocoabean.trigger;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;

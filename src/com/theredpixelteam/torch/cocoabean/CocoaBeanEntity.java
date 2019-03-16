@@ -11,9 +11,10 @@ import java.util.function.Supplier;
  * @see CocoaBeanElement
  */
 public abstract class CocoaBeanEntity {
-    CocoaBeanEntity(@Nonnull CocoaBeanEntityType type)
+    CocoaBeanEntity(@Nonnull CocoaBeanEntityType type, @Nonnull String identity)
     {
         this.type = type;
+        this.identity = identity;
     }
 
     /**
@@ -99,7 +100,50 @@ public abstract class CocoaBeanEntity {
                 () -> new UnsupportedOperationException("Not a TRIGGER type entity or trigger not implemented"));
     }
 
+    /**
+     * Get the identity of this entity, which is provided by bean register
+     * for internal use such as representing entity itself in a {@link CocoaBeanElement}
+     * or storing entities in a map.
+     *
+     * @return Identity string
+     */
+    public @Nonnull String getIdentity()
+    {
+        return identity;
+    }
+
+    /**
+     * Providing a hash code of this enetity, dominated by the identity of this entity.
+     *
+     * @see Object#hashCode()
+     * @return Hash value.
+     */
+    @Override
+    public int hashCode()
+    {
+        return identity.hashCode();
+    }
+
+    /**
+     * Compare object according to the identity of this entity.
+     *
+     * @param object
+     * @return
+     */
+    @Override
+    public boolean equals(Object object)
+    {
+        if (!(object instanceof CocoaBeanEntity))
+            return false;
+
+        CocoaBeanEntity entity = (CocoaBeanEntity) object;
+
+        return identity.equals(entity.getIdentity());
+    }
+
     private final CocoaBeanEntityType type;
+
+    private final String identity;
 
     /**
      * Value accessor. Value operations should be implemented through this object.

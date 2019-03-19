@@ -18,4 +18,14 @@ public interface Trigger {
      * @return Display name
      */
     public String getDisplayName();
+
+    /**
+     * Check whether this trigger is triggerable currently.
+     *
+     * @return Whether triggerable
+     */
+    public default boolean available()
+    {
+        return true;
+    }
 }

@@ -175,5 +175,12 @@ public abstract class CocoaBeanEntity {
          * @return Result
          */
         public boolean isModifiable();
+
+        /**
+         * Get the type of the accessing value.
+         *
+         * @return Value type
+         */
+        public Class<?> getType();
     }
 }

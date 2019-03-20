@@ -1,6 +1,6 @@
 package com.theredpixelteam.cocoabean;
 
-public enum CocoaBeanEntityType {
+public enum CocoaBeanElementType {
     VALUE,
     TRIGGER
 }

@@ -15,7 +15,7 @@ public class CocoaBeanEntity {
         return identity;
     }
 
-    public int getElementID()
+    public int getEntityID()
     {
         return id;
     }

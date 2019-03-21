@@ -10,11 +10,21 @@ public class CocoaBeanEntity {
         this.identity = identity;
     }
 
+    /**
+     * Get the source identity of the entity.
+     *
+     * @return Source identity
+     */
     public String getIdentity()
     {
         return identity;
     }
 
+    /**
+     * Get the ID of this entity.
+     *
+     * @return Entity ID
+     */
     public int getEntityID()
     {
         return id;

@@ -7,17 +7,17 @@ import java.util.Optional;
 /**
  * Cocoa bean value entity.
  */
-public class CocoaBeanValueEntity extends CocoaBeanEntity {
-    public CocoaBeanValueEntity(@Nonnull String identity, @Nonnull ValueAccessor valueAccessor)
+public class CocoaBeanValueElement extends CocoaBeanElement {
+    public CocoaBeanValueElement(@Nonnull String identity, @Nonnull ValueAccessor valueAccessor)
     {
-        super(CocoaBeanEntityType.VALUE, identity);
+        super(CocoaBeanElementType.VALUE, identity);
 
         this.accessor = Objects.requireNonNull(valueAccessor, "accessor");
     }
 
     /**
-     * @see CocoaBeanEntity#getValueAccessor()
-     * @return {@link CocoaBeanEntity.ValueAccessor} instance
+     * @see CocoaBeanElement#getValueAccessor()
+     * @return {@link CocoaBeanElement.ValueAccessor} instance
      */
     @Override
     public Optional<ValueAccessor> getValueAccessor()

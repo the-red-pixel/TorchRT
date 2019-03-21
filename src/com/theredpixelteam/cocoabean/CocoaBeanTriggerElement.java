@@ -9,15 +9,15 @@ import java.util.Optional;
 /**
  * Cocoa bean trigger entry.
  */
-public class CocoaBeanTriggerEntity extends CocoaBeanEntity {
-    public CocoaBeanTriggerEntity(@Nonnull String identity, @Nonnull Trigger trigger)
+public class CocoaBeanTriggerElement extends CocoaBeanElement {
+    public CocoaBeanTriggerElement(@Nonnull String identity, @Nonnull Trigger trigger)
     {
-        super(CocoaBeanEntityType.TRIGGER, identity);
+        super(CocoaBeanElementType.TRIGGER, identity);
         this.trigger = Objects.requireNonNull(trigger, "trigger");
     }
 
     /**
-     * @see CocoaBeanTriggerEntity#getTrigger()
+     * @see CocoaBeanTriggerElement#getTrigger()
      * @return Trigger
      */
     @Override

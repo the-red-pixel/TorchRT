@@ -1,16 +1,16 @@
 package com.theredpixelteam.cocoabean;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
+/**
+ * This object represents a CocoaBean entity.
+ */
 public class CocoaBeanEntity {
     public CocoaBeanEntity(int id, String identity)
     {
         this.id = id;
-        this.identity = identity;
+        this.identity = Objects.requireNonNull(identity, "identity");
     }
 
     /**
@@ -18,7 +18,7 @@ public class CocoaBeanEntity {
      *
      * @return Source identity
      */
-    public String getIdentity()
+    public @Nonnull String getIdentity()
     {
         return identity;
     }

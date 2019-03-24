@@ -1,23 +1,36 @@
 package com.theredpixelteam.cocoabean.trigger;
 
+import com.theredpixelteam.cocoabean.Displayable;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.text.Text;
+
+import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * The interface that a bean trigger should implement.
  */
-public interface Trigger {
+public interface Trigger extends Displayable {
     /**
      * Trigger process.
      *
-     * @param source Trigger source
+     * @param cause Trigger source
      * @return Trigger result
      */
-    public TriggerResult trigger(TriggerSource source);
+    public @Nonnull TriggerResult trigger(@Nonnull Cause cause);
 
     /**
-     * Get the name that displays on external user interfaces.
+     * Get the texts that displays on external user interfaces.
      *
-     * @return Display name
+     * @see Displayable#getDisplayTexts()
+     * @return Display text
      */
-    public String getDisplayName();
+    @Override
+    public default @Nonnull List<Text> getDisplayTexts()
+    {
+        return Collections.emptyList();
+    }
 
     /**
      * Check whether this trigger is triggerable currently.

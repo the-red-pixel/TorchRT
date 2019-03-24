@@ -1,4 +1,4 @@
-package com.theredpixelteam.cocoabean.annotation;
+package com.theredpixelteam.torch.cocoabean.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

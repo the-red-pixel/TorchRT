@@ -1,8 +1,11 @@
 package com.theredpixelteam.cocoabean;
 
 import com.theredpixelteam.cocoabean.trigger.Trigger;
+import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -148,7 +151,7 @@ public abstract class CocoaBeanElement {
     /**
      * Value accessor. Value operations should be implemented through this object.
      */
-    public interface ValueAccessor
+    public interface ValueAccessor extends Displayable
     {
         /**
          * Get value by this value accessor.
@@ -156,6 +159,18 @@ public abstract class CocoaBeanElement {
          * @return Value object
          */
         public @Nonnull Object getValue();
+
+        /**
+         * Get the texts that displays on external user interfaces.
+         *
+         * @see Displayable#getDisplayTexts()
+         * @return Display texts
+         */
+        @Override
+        public default @Nonnull List<Text> getDisplayTexts()
+        {
+            return Collections.emptyList();
+        }
 
         /**
          * Set value through this value accessor.
@@ -181,6 +196,6 @@ public abstract class CocoaBeanElement {
          *
          * @return Value type
          */
-        public Class<?> getType();
+        public @Nonnull Class<?> getType();
     }
 }

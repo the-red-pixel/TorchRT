@@ -105,8 +105,6 @@ public class CocoaBeanNamespace {
         return true;
     }
 
-    // TODO
-
     private List<CocoaBeanEntity> queryEntityListByIdentity(String identity)
     {
         List<CocoaBeanEntity> list = entitiesByIdentity.get(identity);

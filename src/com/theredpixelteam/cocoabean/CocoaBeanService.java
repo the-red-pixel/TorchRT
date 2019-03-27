@@ -1,10 +1,7 @@
 package com.theredpixelteam.cocoabean;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * This object represents a CocoaBean service, providing bean
@@ -46,6 +43,16 @@ public class CocoaBeanService {
     public boolean removeNamespace(@Nonnull String name)
     {
         return namespaces.remove(Objects.requireNonNull(name, "name")) != null;
+    }
+
+    /**
+     * Get all namespaces.
+     *
+     * @return Immutable collection of all namespaces
+     */
+    public Collection<CocoaBeanNamespace> getAllNamespaces()
+    {
+        return Collections.unmodifiableCollection(namespaces.values());
     }
 
     protected Map<String, CocoaBeanNamespace> namespaces = new HashMap<>();

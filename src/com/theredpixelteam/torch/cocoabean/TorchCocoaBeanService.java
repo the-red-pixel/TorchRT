@@ -1,4 +1,7 @@
 package com.theredpixelteam.torch.cocoabean;
 
-public class TorchCocoaBeanService {
+import com.theredpixelteam.cocoabean.CocoaBeanService;
+
+public class TorchCocoaBeanService extends CocoaBeanService {
+    // TODO
 }

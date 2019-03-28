@@ -17,4 +17,11 @@ public @interface Entity {
      * @return Identity of entity
      */
     public String identity();
+
+    /**
+     * Represents the namespace that this entity belongs to.
+     *
+     * @return Namespace name
+     */
+    public String namespace() default "global";
 }

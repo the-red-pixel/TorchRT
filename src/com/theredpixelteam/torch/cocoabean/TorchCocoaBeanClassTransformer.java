@@ -10,12 +10,18 @@ import org.objectweb.asm.tree.ClassNode;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * Torch CocoaBean service class transformer.
  */
 public class TorchCocoaBeanClassTransformer implements PluginClassTransformer {
+    public TorchCocoaBeanClassTransformer(@Nonnull TorchCocoaBeanService service)
+    {
+        this.service = Objects.requireNonNull(service, "service");
+    }
+
     /**
      * @see PluginClassTransformer#accept(byte[])
      *
@@ -46,4 +52,6 @@ public class TorchCocoaBeanClassTransformer implements PluginClassTransformer {
 
         return byts;
     }
+
+    private final TorchCocoaBeanService service;
 }

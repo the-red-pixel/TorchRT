@@ -7,7 +7,7 @@ import java.util.*;
  * This object represents a CocoaBean entity.
  */
 public class CocoaBeanEntity {
-    public CocoaBeanEntity(int id, String identity)
+    public CocoaBeanEntity(int id, @Nonnull String identity)
     {
         this.id = id;
         this.identity = Objects.requireNonNull(identity, "identity");

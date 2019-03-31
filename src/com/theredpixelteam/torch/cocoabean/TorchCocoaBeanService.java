@@ -1,12 +1,21 @@
 package com.theredpixelteam.torch.cocoabean;
 
+import com.theredpixelteam.cocoabean.CocoaBeanElement;
+import com.theredpixelteam.cocoabean.CocoaBeanElementType;
 import com.theredpixelteam.cocoabean.CocoaBeanService;
+import com.theredpixelteam.cocoabean.trigger.Trigger;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class TorchCocoaBeanService extends CocoaBeanService {
+    public TorchCocoaBeanService(@Nonnull CocoaBeanEntityContextProvider contextProvider)
+    {
+        this.contextProvider = Objects.requireNonNull(contextProvider, "contextProvider");
+    }
+
     /**
      * Register the instance as a CocoaBean entity with specified identity
      * and namespace.
@@ -27,9 +36,9 @@ public class TorchCocoaBeanService extends CocoaBeanService {
      * @param type Type
      * @return CocoaBeanContext instance
      */
-    public static @Nonnull CocoaBeanContext createContext(@Nonnull Class<?> type)
+    public @Nonnull CocoaBeanEntityContext createContext(@Nonnull Class<?> type)
     {
-        // TODO
+        return contextProvider.createContext(type);
     }
 
     /**
@@ -39,18 +48,103 @@ public class TorchCocoaBeanService extends CocoaBeanService {
      * @param type Type
      * @return CocoaBeanContext instance
      */
-    public static @Nonnull CocoaBeanContext getContext(@Nonnull Class<?> type)
+    public @Nonnull CocoaBeanEntityContext getContext(@Nonnull Class<?> type)
     {
-        return contextCache.computeIfAbsent(type, TorchCocoaBeanService::createContext);
+        return contextCache.computeIfAbsent(type, this::createContext);
     }
 
-    private static final Map<Class<?>, CocoaBeanContext> contextCache = new HashMap<>();
+    private final CocoaBeanEntityContextProvider contextProvider;
+
+    private final Map<Class<?>, CocoaBeanEntityContext> contextCache = new HashMap<>();
+
+    /**
+     * CocoaBean entity context provider.
+     */
+    public static interface CocoaBeanEntityContextProvider
+    {
+        /**
+         * Provide a context of specified type.
+         *
+         * @param type Type
+         * @return {@link CocoaBeanEntityContext} instance
+         */
+        public @Nonnull CocoaBeanEntityContext createContext(@Nonnull Class<?> type);
+    }
 
     /**
      * Context of a CocoaBean entity.
      */
-    public static class CocoaBeanContext
+    public static class CocoaBeanEntityContext
     {
+        // TODO
 
+        private final Map<String, ElementHandle> handleMap = new HashMap<>();
+
+        /**
+         * Handle of a CocoaBean element, representing the structural
+         * information of a specified element.
+         */
+        public static abstract class ElementHandle
+        {
+            protected ElementHandle(@Nonnull CocoaBeanElementType type, @Nonnull String identity)
+            {
+                this.type = Objects.requireNonNull(type, "type");
+                this.identity = Objects.requireNonNull(identity, "identity");
+            }
+
+            public @Nonnull CocoaBeanElementType getType()
+            {
+                return type;
+            }
+
+            public @Nonnull String getIdentity()
+            {
+                return identity;
+            }
+
+            private final String identity;
+
+            private final CocoaBeanElementType type;
+        }
+
+        /**
+         * Handle of a value-type CocoaBean element.
+         */
+        public abstract static class ValueHandle extends ElementHandle
+        {
+            protected ValueHandle(@Nonnull CocoaBeanElementType type, @Nonnull String identity)
+            {
+                super(type, identity);
+            }
+
+            /**
+             * Create a value accessor attached to the given instance.
+             *
+             * @param instance Instance
+             * @return {@link CocoaBeanElement.ValueAccessor} instance
+             */
+            public abstract @Nonnull CocoaBeanElement.ValueAccessor createAccessor(Object instance);
+        }
+
+        /**
+         * Handle of a trigger-type CocoaBean element.
+         */
+        public abstract static class TriggerHandle extends ElementHandle
+        {
+            protected TriggerHandle(@Nonnull CocoaBeanElementType type, @Nonnull String identity)
+            {
+                super(type, identity);
+            }
+
+            /**
+             * Create a trigger attached to the given instance.
+             *
+             * @param instance Instance
+             * @return {@link Trigger} instance
+             */
+            public abstract @Nonnull Trigger createTrigger(Object instance);
+        }
+
+        // TODO
     }
 }

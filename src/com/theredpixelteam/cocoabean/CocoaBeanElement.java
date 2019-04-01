@@ -4,6 +4,7 @@ import com.theredpixelteam.cocoabean.trigger.Trigger;
 import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -156,9 +157,9 @@ public abstract class CocoaBeanElement {
         /**
          * Get value by this value accessor.
          *
-         * @return Value object
+         * @return Value object, always null when not readable
          */
-        public @Nonnull Object getValue();
+        public @Nullable Object getValue();
 
         /**
          * Get the texts that displays on external user interfaces.
@@ -190,6 +191,13 @@ public abstract class CocoaBeanElement {
          * @return Result
          */
         public boolean isModifiable();
+
+        /**
+         * Whether the {@link ValueAccessor#getValue()} method is supported.
+         *
+         * @return Result
+         */
+        public boolean isReadable();
 
         /**
          * Get the type of the accessing value.

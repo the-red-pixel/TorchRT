@@ -25,7 +25,9 @@ public class TorchCocoaBeanService extends CocoaBeanService {
      * @param instance Instance
      * @return {@link TorchCocoaBeanEntity} instance
      */
-    public TorchCocoaBeanEntity register(@Nonnull String namespaceName, @Nonnull String identity, @Nonnull Object instance)
+    public TorchCocoaBeanEntity register(@Nonnull String namespaceName,
+                                         @Nonnull String identity,
+                                         @Nonnull Object instance)
     {
         // TODO
     }
@@ -144,7 +146,5 @@ public class TorchCocoaBeanService extends CocoaBeanService {
              */
             public abstract @Nonnull Trigger createTrigger(Object instance);
         }
-
-        // TODO
     }
 }

@@ -6,9 +6,7 @@ import com.theredpixelteam.cocoabean.CocoaBeanService;
 import com.theredpixelteam.cocoabean.trigger.Trigger;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class TorchCocoaBeanService extends CocoaBeanService {
     public TorchCocoaBeanService(@Nonnull CocoaBeanEntityContextProvider contextProvider)
@@ -78,6 +76,16 @@ public class TorchCocoaBeanService extends CocoaBeanService {
      */
     public static class CocoaBeanEntityContext
     {
+        /**
+         * Get all element handles in this context.
+         *
+         * @return Immutable collection of all element handles.
+         */
+        public @Nonnull Collection<ElementHandle> getHandles()
+        {
+            return Collections.unmodifiableCollection(handleMap.values());
+        }
+
         // TODO
 
         private final Map<String, ElementHandle> handleMap = new HashMap<>();

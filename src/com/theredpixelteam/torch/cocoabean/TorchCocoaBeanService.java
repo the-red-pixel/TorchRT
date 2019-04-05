@@ -86,6 +86,17 @@ public class TorchCocoaBeanService extends CocoaBeanService {
             return Collections.unmodifiableCollection(handleMap.values());
         }
 
+        /**
+         * Get the element handle in this context by the identity.
+         *
+         * @param identity Identity of the element
+         * @return Element handle, if any
+         */
+        public @Nonnull Optional<ElementHandle> getHandle(String identity)
+        {
+            return Optional.ofNullable(handleMap.get(identity));
+        }
+
         // TODO
 
         private final Map<String, ElementHandle> handleMap = new HashMap<>();

@@ -92,12 +92,127 @@ public class TorchCocoaBeanService extends CocoaBeanService {
          * @param identity Identity of the element
          * @return Element handle, if any
          */
-        public @Nonnull Optional<ElementHandle> getHandle(String identity)
+        public @Nonnull Optional<ElementHandle> getHandle(@Nonnull String identity)
         {
-            return Optional.ofNullable(handleMap.get(identity));
+            return Optional.ofNullable(handleMap.get(Objects.requireNonNull(identity, "identity")));
         }
 
-        // TODO
+        /**
+         * Seal this context, which means the completion of the construction
+         * stage of this context. <b>Nothing will be done if already sealed.</b>
+         */
+        public void seal()
+        {
+//            if (!this.sealed)
+            this.sealed = true;
+        }
+
+        /**
+         * Whether this context is already sealed.
+         *
+         * @see #seal()
+         * @return Result
+         */
+        public boolean isSealed()
+        {
+            return this.isSealed();
+        }
+
+        /**
+         * Add handle to this context. This method will always
+         * return false and do nothing if this context is already
+         * sealed.
+         *
+         * @see #seal()
+         * @param handle ElementHandle instance
+         * @return True if added. Otherwise duplicated or context sealed.
+         */
+        public boolean addHandle(@Nonnull ElementHandle handle)
+        {
+            Objects.requireNonNull(handle, "handle");
+
+            if (sealed)
+                return false;
+
+            return handleMap.putIfAbsent(handle.getIdentity(), handle) == null;
+        }
+
+        /**
+         * Remove the handle by the identity. This method will always
+         * return false and do nothing if this context is already
+         * sealed.
+         *
+         * @see #seal()
+         * @param identity Identity of the element
+         * @return True if removed. Otherwise not exists or context sealed.
+         */
+        public boolean removeHandle(String identity)
+        {
+            Objects.requireNonNull(identity, "identity");
+
+            if (sealed)
+                return false;
+
+            return handleMap.remove(identity) != null;
+        }
+
+        /**
+         * Get all value-type element handles.
+         *
+         * @return Immutable collection of all value-type handles.
+         */
+        public @Nonnull Collection<ValueHandle> getValueHandles()
+        {
+            if (cachedValueHandles == null)
+            {
+                Set<ValueHandle> handles = new HashSet<>();
+
+                for (ElementHandle handle : handleMap.values())
+                    if (CocoaBeanElementType.VALUE.equals(handle.getType()))
+                        handles.add((ValueHandle) handle);
+
+                handles = Collections.unmodifiableSet(handles);
+
+                if (sealed)
+                    this.cachedValueHandles = handles;
+
+                return handles;
+            }
+            else
+                return cachedValueHandles;
+        }
+
+        /**
+         * Get all trigger-type element handles.
+         *
+         * @return Immutable collection of all trigger-type handles.
+         */
+        public @Nonnull Collection<TriggerHandle> getTriggerHandles()
+        {
+            if (cachedTriggerHandles == null)
+            {
+                Set<TriggerHandle> handles = new HashSet<>();
+
+                for (ElementHandle handle : handleMap.values())
+                    if (CocoaBeanElementType.TRIGGER.equals(handle.getType()))
+                        handles.add((TriggerHandle) handle);
+
+                handles = Collections.unmodifiableSet(handles);
+
+                if (sealed)
+                    this.cachedTriggerHandles = handles;
+
+                return handles;
+            }
+            else
+                return cachedTriggerHandles;
+        }
+
+        private boolean sealed = false;
+
+        private Collection<ValueHandle> cachedValueHandles;
+
+        private Collection<TriggerHandle> cachedTriggerHandles;
 
         private final Map<String, ElementHandle> handleMap = new HashMap<>();
 
@@ -133,9 +248,9 @@ public class TorchCocoaBeanService extends CocoaBeanService {
          */
         public abstract static class ValueHandle extends ElementHandle
         {
-            protected ValueHandle(@Nonnull CocoaBeanElementType type, @Nonnull String identity)
+            protected ValueHandle(@Nonnull String identity)
             {
-                super(type, identity);
+                super(CocoaBeanElementType.VALUE, identity);
             }
 
             /**
@@ -152,9 +267,9 @@ public class TorchCocoaBeanService extends CocoaBeanService {
          */
         public abstract static class TriggerHandle extends ElementHandle
         {
-            protected TriggerHandle(@Nonnull CocoaBeanElementType type, @Nonnull String identity)
+            protected TriggerHandle(@Nonnull String identity)
             {
-                super(type, identity);
+                super(CocoaBeanElementType.TRIGGER, identity);
             }
 
             /**

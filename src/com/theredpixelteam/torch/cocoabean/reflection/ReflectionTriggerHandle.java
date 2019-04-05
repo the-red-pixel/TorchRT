@@ -10,9 +10,9 @@ import javax.annotation.Nonnull;
  * Reflection implementation of trigger-type CocoaBean entity handle.
  */
 public class ReflectionTriggerHandle extends TriggerHandle {
-    public ReflectionTriggerHandle(@Nonnull CocoaBeanElementType type, @Nonnull String identity)
+    public ReflectionTriggerHandle(@Nonnull String identity)
     {
-        super(type, identity);
+        super(identity);
     }
 
     /**

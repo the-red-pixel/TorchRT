@@ -1,7 +1,6 @@
 package com.theredpixelteam.torch.cocoabean.reflection;
 
 import com.theredpixelteam.cocoabean.CocoaBeanElement;
-import com.theredpixelteam.cocoabean.CocoaBeanElementType;
 import com.theredpixelteam.torch.cocoabean.TorchCocoaBeanService.CocoaBeanEntityContext.ValueHandle;
 
 import javax.annotation.Nonnull;
@@ -14,14 +13,13 @@ import java.util.Objects;
  * Reflection implementation of value-type CocoaBean entity handle.
  */
 public class ReflectionValueHandle extends ValueHandle {
-    public ReflectionValueHandle(@Nonnull CocoaBeanElementType type,
-                                 @Nonnull String identity,
+    public ReflectionValueHandle(@Nonnull String identity,
                                  @Nonnull Class<?> valueType,
                                  @Nullable Field field,
                                  @Nullable Method getter,
                                  @Nullable Method setter)
     {
-        super(type, identity);
+        super(identity);
 
         this.valueType = Objects.requireNonNull(valueType, "valueType");
         this.field = field;
@@ -53,9 +51,8 @@ public class ReflectionValueHandle extends ValueHandle {
             this.instance = instance;
         }
 
-        @Nullable
         @Override
-        public Object getValue()
+        public @Nullable Object getValue()
         {
             // TODO
             return null;
@@ -80,9 +77,8 @@ public class ReflectionValueHandle extends ValueHandle {
             return readable;
         }
 
-        @Nonnull
         @Override
-        public Class<?> getType()
+        public @Nonnull Class<?> getType()
         {
             return valueType;
         }

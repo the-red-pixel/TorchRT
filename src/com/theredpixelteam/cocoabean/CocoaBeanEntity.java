@@ -70,7 +70,7 @@ public class CocoaBeanEntity {
      * if a duplicated identity element found in this entity.
      *
      * @param element Element to register
-     * @return Whether registered successfully
+     * @return Whether registered successfully, otherwise duplicated
      */
     public boolean registerElement(CocoaBeanElement element)
     {

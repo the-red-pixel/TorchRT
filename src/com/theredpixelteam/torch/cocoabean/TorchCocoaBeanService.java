@@ -1,9 +1,11 @@
 package com.theredpixelteam.torch.cocoabean;
 
-import com.theredpixelteam.cocoabean.CocoaBeanElement;
-import com.theredpixelteam.cocoabean.CocoaBeanElementType;
-import com.theredpixelteam.cocoabean.CocoaBeanService;
+import com.theredpixelteam.cocoabean.*;
+import com.theredpixelteam.cocoabean.trigger.CocoaBeanOperationException;
 import com.theredpixelteam.cocoabean.trigger.Trigger;
+import com.theredpixelteam.torch.adm.ADM;
+import com.theredpixelteam.torch.adm.ADMLogging;
+import com.theredpixelteam.torch.exception.ShouldNotReachHere;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -23,11 +25,50 @@ public class TorchCocoaBeanService extends CocoaBeanService {
      * @param instance Instance
      * @return {@link TorchCocoaBeanEntity} instance
      */
+    @ADMLogging
     public TorchCocoaBeanEntity register(@Nonnull String namespaceName,
                                          @Nonnull String identity,
                                          @Nonnull Object instance)
+        throws CocoaBeanOperationException
     {
-        // TODO
+        CocoaBeanEntityContext context = getContext(instance.getClass());
+        CocoaBeanNamespace namespace = getOrCreateNamespace(namespaceName);
+
+        int eid = namespace.nextElementID();
+        TorchCocoaBeanEntity entity = new TorchCocoaBeanEntity(eid, identity, instance);
+
+        for (CocoaBeanEntityContext.ElementHandle handle : context.getHandles())
+        {
+            CocoaBeanElement element;
+
+            switch (handle.getType())
+            {
+                case VALUE:
+                    element = new CocoaBeanValueElement(handle.getIdentity(),
+                            ((CocoaBeanEntityContext.ValueHandle) handle).createAccessor(instance));
+                    break;
+
+                case TRIGGER:
+                    element = new CocoaBeanTriggerElement(handle.getIdentity(),
+                            ((CocoaBeanEntityContext.TriggerHandle) handle).createTrigger(instance));
+                    break;
+
+                default:
+                    throw new ShouldNotReachHere();
+            }
+
+            if (!entity.registerElement(element))
+                throw new CocoaBeanOperationException("Duplicated element in entity context of <" + identity + ">");
+        }
+
+        if (!namespace.addEntity(entity))
+            throw new CocoaBeanOperationException("Duplicated element ID");
+
+        if (ADM.enabled())
+            ADM.logger().info("CocoaBean entity <" + identity + "> with EID " + eid
+                    + " registered to the namespace \"" + namespaceName + "\"");
+
+        return entity;
     }
 
     /**

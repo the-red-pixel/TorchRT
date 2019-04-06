@@ -1,6 +1,7 @@
 package com.theredpixelteam.torch.cocoabean.reflection;
 
 import com.theredpixelteam.cocoabean.CocoaBeanElement;
+import com.theredpixelteam.cocoabean.trigger.CocoaBeanOperationException;
 import com.theredpixelteam.torch.cocoabean.TorchCocoaBeanService.CocoaBeanEntityContext.ValueHandle;
 
 import javax.annotation.Nonnull;
@@ -46,23 +47,48 @@ public class ReflectionValueHandle extends ValueHandle {
      */
     public class ReflectionValueAccessor implements CocoaBeanElement.ValueAccessor
     {
-        public ReflectionValueAccessor(Object instance)
+        public ReflectionValueAccessor(@Nonnull Object instance)
         {
-            this.instance = instance;
+            this.instance = Objects.requireNonNull(instance, "instance");
         }
 
         @Override
         public @Nullable Object getValue()
+                throws CocoaBeanOperationException
         {
-            // TODO
-            return null;
+            if (!readable)
+                return null;
+
+            try {
+                if (getter != null)
+                    return getter.invoke(instance);
+
+                return field.get(instance);
+            } catch (ReflectiveOperationException e) {
+                throw new CocoaBeanOperationException("reflection failure", e);
+            }
         }
 
         @Override
         public boolean setValue(@Nonnull Object value)
+                throws CocoaBeanOperationException
         {
-            // TODO
-            return false;
+            if (!writeable)
+                return false;
+
+            if (!valueType.isInstance(value))
+                return false;
+
+            try {
+                if (setter != null)
+                    setter.invoke(instance, value);
+                else
+                    field.set(instance, value);
+
+                return true;
+            } catch (ReflectiveOperationException e) {
+                throw new CocoaBeanOperationException("reflection failure", e);
+            }
         }
 
         @Override

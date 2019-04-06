@@ -29,14 +29,50 @@ public class CocoaBeanNamespace {
     }
 
     /**
+     * Get next element ID.
+     *
+     * @return Next element id.
+     */
+    public int nextElementID()
+    {
+        int id = counter.getAndIncrement();
+
+        if (entities.containsKey(id))
+            throw new IllegalStateException("counter failure");
+
+        return id;
+    }
+
+    /**
+     * Add a CocoaBean entity to this namespace.
+     *
+     * @param entity CocoaBeanEntity instance
+     * @return Whether this entity is added to this namespace,
+     * otherwise element ID duplicated.
+     */
+    public boolean addEntity(@Nonnull CocoaBeanEntity entity)
+    {
+        Objects.requireNonNull(entity, "entity");
+
+        if (entities.putIfAbsent(entity.getEntityID(), entity) != null)
+            return false;
+
+        getEntityListByIdentity(entity.getIdentity()).add(entity);
+
+        return true;
+    }
+
+    /**
      * Add a CocoaBean entity using the provided entity constructor
      * function.
      *
      * @param entityConstructor CocoaBean entity constructor
      * @return Entity id
      */
-    public int addEntity(Function<Integer, CocoaBeanEntity> entityConstructor)
+    public int addEntity(@Nonnull Function<Integer, CocoaBeanEntity> entityConstructor)
     {
+        Objects.requireNonNull(entityConstructor, "constructor");
+
         int id = counter.getAndIncrement();
         CocoaBeanEntity entity = entityConstructor.apply(id);
 
@@ -54,9 +90,10 @@ public class CocoaBeanNamespace {
      * @param identity Identity of entities
      * @return Entity collection
      */
-    public @Nonnull Collection<CocoaBeanEntity> getEntities(String identity)
+    public @Nonnull Collection<CocoaBeanEntity> getEntities(@Nonnull String identity)
     {
-        return Collections.unmodifiableList(queryEntityListByIdentity(identity));
+        return Collections.unmodifiableList(
+                queryEntityListByIdentity(Objects.requireNonNull(identity, "identity")));
     }
 
     /**

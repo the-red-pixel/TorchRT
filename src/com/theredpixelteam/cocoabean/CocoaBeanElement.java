@@ -1,5 +1,6 @@
 package com.theredpixelteam.cocoabean;
 
+import com.theredpixelteam.cocoabean.trigger.CocoaBeanOperationException;
 import com.theredpixelteam.cocoabean.trigger.Trigger;
 import org.spongepowered.api.text.Text;
 
@@ -152,6 +153,7 @@ public abstract class CocoaBeanElement {
     /**
      * Value accessor. Value operations should be implemented through this object.
      */
+    @SuppressWarnings("all")
     public interface ValueAccessor extends Displayable
     {
         /**
@@ -159,7 +161,7 @@ public abstract class CocoaBeanElement {
          *
          * @return Value object, always null when not readable
          */
-        public @Nullable Object getValue();
+        public @Nullable Object getValue() throws CocoaBeanOperationException;
 
         /**
          * Get the texts that displays on external user interfaces.
@@ -169,6 +171,7 @@ public abstract class CocoaBeanElement {
          */
         @Override
         public default @Nonnull List<Text> getDisplayTexts()
+            throws CocoaBeanOperationException
         {
             return Collections.emptyList();
         }
@@ -183,7 +186,7 @@ public abstract class CocoaBeanElement {
          * @param value Value object
          * @return Whether the value object is compatible/legal to this value entity.
          */
-        public boolean setValue(@Nonnull Object value);
+        public boolean setValue(@Nonnull Object value) throws CocoaBeanOperationException;
 
         /**
          * Whether the {@link ValueAccessor#setValue(Object)} method is supported.

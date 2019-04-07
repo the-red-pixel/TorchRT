@@ -23,10 +23,10 @@ public class TorchCocoaBeanService extends CocoaBeanService {
      * @param namespaceName Namespace name
      * @param identity Identity
      * @param instance Instance
-     * @return {@link TorchCocoaBeanEntity} instance
+     * @return {@link CocoaBeanEntity} instance
      */
     @ADMLogging
-    public TorchCocoaBeanEntity register(@Nonnull String namespaceName,
+    public CocoaBeanEntity register(@Nonnull String namespaceName,
                                          @Nonnull String identity,
                                          @Nonnull Object instance)
         throws CocoaBeanOperationException
@@ -35,7 +35,7 @@ public class TorchCocoaBeanService extends CocoaBeanService {
         CocoaBeanNamespace namespace = getOrCreateNamespace(namespaceName);
 
         int eid = namespace.nextElementID();
-        TorchCocoaBeanEntity entity = new TorchCocoaBeanEntity(eid, identity, instance);
+        CocoaBeanEntity entity = new CocoaBeanEntity(eid, identity, instance);
 
         for (CocoaBeanEntityContext.ElementHandle handle : context.getHandles())
         {

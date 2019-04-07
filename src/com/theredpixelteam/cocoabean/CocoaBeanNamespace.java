@@ -1,5 +1,7 @@
 package com.theredpixelteam.cocoabean;
 
+import com.theredpixelteam.torch.exception.ShouldNotReachHere;
+
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,7 +39,7 @@ public class CocoaBeanNamespace {
     {
         int id = counter.getAndIncrement();
 
-        if (entities.containsKey(id))
+        if (entities.containsKey(id) || id < 0)
             throw new IllegalStateException("counter failure");
 
         return id;
@@ -48,16 +50,25 @@ public class CocoaBeanNamespace {
      *
      * @param entity CocoaBeanEntity instance
      * @return Whether this entity is added to this namespace,
-     * otherwise element ID duplicated.
+     * otherwise element ID or identifier duplicated.
      */
     public boolean addEntity(@Nonnull CocoaBeanEntity entity)
     {
         Objects.requireNonNull(entity, "entity");
 
+        Optional<Object> identifier = entity.getUniqueIdentifier();
+        if (identifier.isPresent())
+            if (identifiers.contains(identifier.get()))
+                return false; // Unique identifier duplication
+
         if (entities.putIfAbsent(entity.getEntityID(), entity) != null)
-            return false;
+            return false; // Element ID duplication
 
         getEntityListByIdentity(entity.getIdentity()).add(entity);
+
+        if (identifier.isPresent())
+            if (!registerIdentifier(identifier.get()))
+                throw new ShouldNotReachHere();
 
         return true;
     }
@@ -67,19 +78,28 @@ public class CocoaBeanNamespace {
      * function.
      *
      * @param entityConstructor CocoaBean entity constructor
-     * @return Entity id
+     * @return Entity id, -1 if identifier duplicated
      */
     public int addEntity(@Nonnull Function<Integer, CocoaBeanEntity> entityConstructor)
     {
         Objects.requireNonNull(entityConstructor, "constructor");
 
-        int id = counter.getAndIncrement();
+        int id = nextElementID();
         CocoaBeanEntity entity = entityConstructor.apply(id);
+
+        Optional<Object> identifier = entity.getUniqueIdentifier();
+        if (identifier.isPresent())
+            if (identifiers.contains(identifier.get()))
+                return -1; // Unique identifier duplication
 
         if (entities.putIfAbsent(id, entity) != null)
             throw new IllegalStateException("counter failure");
 
         getEntityListByIdentity(entity.getIdentity()).add(entity);
+
+        if (identifier.isPresent())
+            if (!registerIdentifier(identifier.get()))
+                throw new ShouldNotReachHere();
 
         return id;
     }
@@ -119,7 +139,11 @@ public class CocoaBeanNamespace {
         int count = list.size();
 
         for (CocoaBeanEntity entity : list)
+        {
             entities.remove(entity.getEntityID());
+
+            entity.getUniqueIdentifier().ifPresent(this::unregisterIdentifier);
+        }
 
         return count;
     }
@@ -139,7 +163,42 @@ public class CocoaBeanNamespace {
 
         getEntityListByIdentity(entity.getIdentity()).remove(entity);
 
+        entity.getUniqueIdentifier().ifPresent(this::unregisterIdentifier);
+
         return true;
+    }
+
+    /**
+     * Register the unique identifier to this namespace.
+     *
+     * @param identifier Unique identifier
+     * @return Whether registered, false if duplicated
+     */
+    public boolean registerIdentifier(@Nonnull Object identifier)
+    {
+        return identifiers.add(Objects.requireNonNull(identifier, "identifier"));
+    }
+
+    /**
+     * Check whether the unique identifier exists in this namespace.
+     *
+     * @param identifier Unique identifier
+     * @return Whether exists
+     */
+    public boolean checkIdentifier(@Nonnull Object identifier)
+    {
+        return identifiers.add(Objects.requireNonNull(identifier));
+    }
+
+    /**
+     * Unregister the unique identifier in this namespace.
+     *
+     * @param identifier Unique identifier
+     * @return Whether exists and unregistered
+     */
+    public boolean unregisterIdentifier(@Nonnull Object identifier)
+    {
+        return identifiers.remove(Objects.requireNonNull(identifier));
     }
 
     private List<CocoaBeanEntity> queryEntityListByIdentity(String identity)
@@ -160,6 +219,8 @@ public class CocoaBeanNamespace {
 
         return list == null ? Collections.emptyList() : list;
     }
+
+    private final Set<Object> identifiers = new HashSet<>();
 
     private final Map<String, List<CocoaBeanEntity>> entitiesByIdentity = new HashMap<>();
 

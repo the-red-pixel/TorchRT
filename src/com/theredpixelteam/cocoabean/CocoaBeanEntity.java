@@ -1,16 +1,20 @@
 package com.theredpixelteam.cocoabean;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 
 /**
  * This object represents a CocoaBean entity.
  */
 public class CocoaBeanEntity {
-    public CocoaBeanEntity(int id, @Nonnull String identity)
+    public CocoaBeanEntity(int id,
+                           @Nonnull String identity,
+                           @Nullable Object identifier)
     {
         this.id = id;
         this.identity = Objects.requireNonNull(identity, "identity");
+        this.identifier = identifier;
     }
 
     /**
@@ -76,6 +80,20 @@ public class CocoaBeanEntity {
     {
         return elements.putIfAbsent(element.getIdentity(), element) == null;
     }
+
+    /**
+     * Get unique identifier. This identifier is only for preventing
+     * multiple registration of a single entity instance. This identifier
+     * should only be used to verify uniqueness.
+     *
+     * @return Unique identifier, if any
+     */
+    public @Nonnull Optional<Object> getUniqueIdentifier()
+    {
+        return Optional.ofNullable(identifier);
+    }
+
+    private final Object identifier;
 
     private final int id;
 

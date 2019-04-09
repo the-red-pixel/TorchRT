@@ -1,10 +1,13 @@
 package com.theredpixelteam.torch.cocoabean.reflection;
 
-import com.theredpixelteam.cocoabean.CocoaBeanElementType;
 import com.theredpixelteam.cocoabean.trigger.Trigger;
+import com.theredpixelteam.cocoabean.trigger.TriggerResult;
 import com.theredpixelteam.torch.cocoabean.TorchCocoaBeanService.CocoaBeanEntityContext.TriggerHandle;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Reflection implementation of trigger-type CocoaBean entity handle.
@@ -26,5 +29,24 @@ public class ReflectionTriggerHandle extends TriggerHandle {
         return null;
     }
 
-    // TODO
+    public class ReflectionTrigger implements Trigger
+    {
+        @Override
+        public @Nonnull TriggerResult trigger(@Nonnull Cause cause)
+        {
+            return null;
+        }
+
+        @Override
+        public @Nonnull List<Text> getDisplayTexts()
+        {
+            return null;
+        }
+
+        @Override
+        public boolean available()
+        {
+            return false;
+        }
+    }
 }

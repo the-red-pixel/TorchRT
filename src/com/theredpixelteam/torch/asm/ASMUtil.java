@@ -1,4 +1,4 @@
-package com.theredpixelteam.torch;
+package com.theredpixelteam.torch.asm;
 
 import com.theredpixelteam.torch.exception.ShouldNotReachHere;
 import org.objectweb.asm.ClassReader;

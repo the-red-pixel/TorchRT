@@ -1,6 +1,6 @@
 package com.theredpixelteam.torch.cocoabean;
 
-import com.theredpixelteam.torch.ASMUtil;
+import com.theredpixelteam.torch.asm.ASMUtil;
 import com.theredpixelteam.torch.adm.ADMLogging;
 import com.theredpixelteam.torch.cocoabean.annotation.Entity;
 import com.theredpixelteam.torch.exception.ShouldNotReachHere;

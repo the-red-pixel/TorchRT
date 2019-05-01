@@ -1,5 +1,6 @@
 package com.theredpixelteam.torch;
 
+import com.theredpixelteam.redtea.util.Optional;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.profile.GameProfile;
@@ -8,7 +9,6 @@ import org.spongepowered.api.profile.ProfileNotFoundException;
 import org.spongepowered.api.service.user.UserStorageService;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -74,11 +74,12 @@ public class GameProfileUtil {
         GameProfile profile = null;
 
         // Acquire user storage service for specified GameProfile instance first.
-        Optional<UserStorageService> userStorage = Sponge.getServiceManager().provide(UserStorageService.class);
+        java.util.Optional<UserStorageService> userStorage =
+                Sponge.getServiceManager().provide(UserStorageService.class);
 
         if (userStorage.isPresent())
         {
-            Optional<User> user = userStorage.get().get(name);
+            java.util.Optional<User> user = userStorage.get().get(name);
 
             if (user.isPresent())
                 profile = user.get().getProfile();

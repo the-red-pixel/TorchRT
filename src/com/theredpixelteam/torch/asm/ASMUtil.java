@@ -10,6 +10,8 @@ import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
+import com.theredpixelteam.redtea.util.Optional;
+
 /**
  * Providing some common asm operations.
  */

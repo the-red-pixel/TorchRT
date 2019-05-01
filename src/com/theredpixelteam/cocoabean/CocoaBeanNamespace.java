@@ -7,6 +7,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
+import com.theredpixelteam.redtea.util.Optional;
+
 /**
  * This object represents a CocoaBean namespace, providing
  * bean entity management, and managed directly by a

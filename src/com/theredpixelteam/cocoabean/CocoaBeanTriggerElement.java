@@ -1,10 +1,10 @@
 package com.theredpixelteam.cocoabean;
 
 import com.theredpixelteam.cocoabean.trigger.Trigger;
+import com.theredpixelteam.redtea.util.Optional;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Cocoa bean trigger entry.

@@ -4,6 +4,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
+import com.theredpixelteam.redtea.util.Optional;
+
 /**
  * This object represents a CocoaBean entity.
  */

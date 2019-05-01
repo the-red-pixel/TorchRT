@@ -1,8 +1,9 @@
 package com.theredpixelteam.cocoabean.trigger;
 
+import com.theredpixelteam.redtea.util.Optional;
+
 import javax.annotation.Nonnull;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Result of the trigger process.

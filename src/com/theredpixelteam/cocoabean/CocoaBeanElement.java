@@ -2,14 +2,14 @@ package com.theredpixelteam.cocoabean;
 
 import com.theredpixelteam.cocoabean.trigger.CocoaBeanOperationException;
 import com.theredpixelteam.cocoabean.trigger.Trigger;
+import com.theredpixelteam.redtea.function.Supplier;
+import com.theredpixelteam.redtea.util.Optional;
 import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
 
 /**
  * This object represents an element in a CocoaBean entity.

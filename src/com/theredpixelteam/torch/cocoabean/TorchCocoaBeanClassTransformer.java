@@ -1,5 +1,6 @@
 package com.theredpixelteam.torch.cocoabean;
 
+import com.theredpixelteam.redtea.util.Optional;
 import com.theredpixelteam.torch.asm.ASMUtil;
 import com.theredpixelteam.torch.adm.ADMLogging;
 import com.theredpixelteam.torch.cocoabean.annotation.Entity;
@@ -11,7 +12,6 @@ import org.objectweb.asm.tree.ClassNode;
 import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Torch CocoaBean service class transformer.

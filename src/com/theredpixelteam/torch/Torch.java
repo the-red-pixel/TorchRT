@@ -1,13 +1,12 @@
 package com.theredpixelteam.torch;
 
 import com.google.inject.Inject;
+import com.theredpixelteam.redtea.util.Optional;
 import com.theredpixelteam.torch.cocoabean.TorchCocoaBeanService;
 import org.slf4j.Logger;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameConstructionEvent;
 import org.spongepowered.api.plugin.Plugin;
-
-import java.util.Optional;
 
 @Plugin(id = "torch",
         name = "TorchRT",

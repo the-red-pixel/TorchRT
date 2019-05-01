@@ -1,8 +1,9 @@
 package com.theredpixelteam.cocoabean;
 
+import com.theredpixelteam.redtea.util.Optional;
+
 import javax.annotation.Nonnull;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Cocoa bean value entity.

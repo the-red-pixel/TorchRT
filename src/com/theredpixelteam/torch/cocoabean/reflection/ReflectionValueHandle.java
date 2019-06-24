@@ -20,6 +20,8 @@ public class ReflectionValueHandle extends ValueHandle {
                                  @Nullable Method getter,
                                  @Nullable Method setter)
     {
+        // TODO lazy loading
+
         super(identity);
 
         this.valueType = Objects.requireNonNull(valueType, "valueType");

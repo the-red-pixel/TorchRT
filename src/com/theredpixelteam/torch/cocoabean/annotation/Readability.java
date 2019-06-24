@@ -12,9 +12,19 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Readability {
     /**
-     * Represents the identity of target value element.
+     * Represents the identity of target value element,
+     * ignored if this annotation is directly annotated
+     * above the element.
      *
      * @return Identity of entity
      */
-    public String identity();
+    public String identity() default "";
+
+    /**
+     * Readability flag, ignored if this annotation is not
+     * directly annotated above the element.
+     *
+     * @return True if can read, false otherwise.
+     */
+    public boolean value() default true;
 }

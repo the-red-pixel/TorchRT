@@ -17,14 +17,4 @@ public @interface Element {
      * @return Identity of entity
      */
     public String identity();
-
-    /**
-     * Whether this entity is read-only. This flag will only take
-     * effect when annotating a <b>value-type</b> entity. If read-only
-     * flag is set, any setter declared under this element will be
-     * ignored or rejected.
-     *
-     * @return Whether read-only, false for default.
-     */
-    public boolean readonly() default false;
 }

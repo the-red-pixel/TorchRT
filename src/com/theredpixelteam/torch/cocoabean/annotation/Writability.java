@@ -12,9 +12,19 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Writability {
     /**
-     * Represents the identity of target value entity.
+     * Represents the identity of target value entity,
+     * ignored if this annotation is directly annotated
+     * above the element.
      *
      * @return Identity of entity
      */
-    public String identity();
+    public String identity() default "";
+
+    /**
+     * Writability flag, ignored if this annotation is not
+     * directly annotated above the element.
+     *
+     * @return True if can write, otherwise false.
+     */
+    public boolean value() default true;
 }

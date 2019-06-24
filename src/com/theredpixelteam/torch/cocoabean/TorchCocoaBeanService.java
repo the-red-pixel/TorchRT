@@ -3,22 +3,68 @@ package com.theredpixelteam.torch.cocoabean;
 import com.theredpixelteam.cocoabean.*;
 import com.theredpixelteam.cocoabean.trigger.CocoaBeanOperationException;
 import com.theredpixelteam.cocoabean.trigger.Trigger;
+import com.theredpixelteam.redtea.util.Optional;
 import com.theredpixelteam.torch.adm.ADM;
 import com.theredpixelteam.torch.adm.ADMLogging;
 import com.theredpixelteam.torch.exception.ShouldNotReachHere;
+import org.objectweb.asm.tree.ClassNode;
 
 import javax.annotation.Nonnull;
 import java.util.*;
 
 public class TorchCocoaBeanService extends CocoaBeanService {
+    /**
+     * Construct a service instance with the given CocoaBean entity
+     * context provider implementation.
+     *
+     * @param contextProvider Provider implementation
+     */
     public TorchCocoaBeanService(@Nonnull CocoaBeanEntityContextProvider contextProvider)
     {
         this.contextProvider = Objects.requireNonNull(contextProvider, "contextProvider");
     }
 
     /**
-     * Register the instance as a CocoaBean entity with specified identity
-     * and namespace.
+     * Get the CocoaBean entity context provider implementation of this
+     * service instance.
+     *
+     * @return {@link CocoaBeanEntityContextProvider} instance
+     */
+    public @Nonnull CocoaBeanEntityContextProvider getContextProvider()
+    {
+        return contextProvider;
+    }
+
+    /**
+     * Register a CocoaBean entity of this instance with specified identity
+     * and namespace if this instance (used as an unique identifier) has not
+     * been registered yet.
+     *
+     * @param namespaceName Namespace name
+     * @param identity Identity
+     * @param instance Instance
+     * @return True if this instance has not been registered before and now
+     *  successfully created and registered, and false otherwise.
+     * @throws CocoaBeanOperationException
+     */
+    public boolean register(@Nonnull String namespaceName,
+                            @Nonnull String identity,
+                            @Nonnull Object instance)
+            throws CocoaBeanOperationException, CocoaBeanMalformationException
+    {
+        Optional<CocoaBeanNamespace> namespace = getNamespace(namespaceName);
+
+        if (namespace.isPresent() && !namespace.get().checkIdentifier(instance))
+            return false;
+
+        create(namespaceName, identity, instance);
+
+        return true;
+    }
+
+    /**
+     * Create a CocoaBean entity of this instance with specified identity
+     * and namespace. And the instance will be used as an unique identifier.
      *
      * @param namespaceName Namespace name
      * @param identity Identity
@@ -26,10 +72,10 @@ public class TorchCocoaBeanService extends CocoaBeanService {
      * @return {@link CocoaBeanEntity} instance
      */
     @ADMLogging
-    public CocoaBeanEntity register(@Nonnull String namespaceName,
-                                         @Nonnull String identity,
-                                         @Nonnull Object instance)
-        throws CocoaBeanOperationException
+    public CocoaBeanEntity create(@Nonnull String namespaceName,
+                                  @Nonnull String identity,
+                                  @Nonnull Object instance)
+        throws CocoaBeanOperationException, CocoaBeanMalformationException
     {
         CocoaBeanEntityContext context = getContext(instance.getClass());
         CocoaBeanNamespace namespace = getOrCreateNamespace(namespaceName);
@@ -78,6 +124,7 @@ public class TorchCocoaBeanService extends CocoaBeanService {
      * @return CocoaBeanContext instance
      */
     public @Nonnull CocoaBeanEntityContext createContext(@Nonnull Class<?> type)
+            throws CocoaBeanMalformationException
     {
         return contextProvider.createContext(type);
     }
@@ -90,8 +137,16 @@ public class TorchCocoaBeanService extends CocoaBeanService {
      * @return CocoaBeanContext instance
      */
     public @Nonnull CocoaBeanEntityContext getContext(@Nonnull Class<?> type)
+            throws CocoaBeanMalformationException
     {
-        return contextCache.computeIfAbsent(type, this::createContext);
+        CocoaBeanEntityContext context = contextCache.get(type);
+
+        if (context != null)
+            return context;
+
+        contextCache.put(type, context = createContext(type));
+
+        return context;
     }
 
     private final CocoaBeanEntityContextProvider contextProvider;
@@ -109,7 +164,35 @@ public class TorchCocoaBeanService extends CocoaBeanService {
          * @param type Type
          * @return {@link CocoaBeanEntityContext} instance
          */
-        public @Nonnull CocoaBeanEntityContext createContext(@Nonnull Class<?> type);
+        public @Nonnull CocoaBeanEntityContext createContext(@Nonnull Class<?> type)
+                throws CocoaBeanMalformationException;
+
+        /**
+         * Whether this CocoaBeanContextProvider supports preload operation
+         * while performing class transforming operation. This method should
+         * be called by class transformers.
+         *
+         * This method will return false by default.
+         *
+         * @return True if support, false otherwise.
+         */
+        public default boolean supportPreload()
+        {
+            return false;
+        }
+
+        /**
+         * Preload the CocoaBean entity while performing class transforming
+         * operation. This method will throw {@link UnsupportedOperationException}
+         * by default. And this method should be called by class transformers.
+         *
+         * @param classNode ClassNode instance
+         * @return {@link CocoaBeanEntityContext} instance
+         */
+        public default @Nonnull void preloadContext(@Nonnull ClassNode classNode)
+        {
+            throw new UnsupportedOperationException();
+        }
     }
 
     /**

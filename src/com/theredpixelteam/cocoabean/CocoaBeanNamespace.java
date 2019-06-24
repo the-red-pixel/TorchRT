@@ -189,7 +189,7 @@ public class CocoaBeanNamespace {
      */
     public boolean checkIdentifier(@Nonnull Object identifier)
     {
-        return identifiers.add(Objects.requireNonNull(identifier));
+        return identifiers.contains(Objects.requireNonNull(identifier));
     }
 
     /**
